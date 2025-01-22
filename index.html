@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <title>Aplikasi Note</title>
+        <!-- Own Styles -->
+        <link rel="icon" href="./src/img/logo_remove.png">
+        <link rel="stylesheet" href="./src/css/style.css">
+        <script src="./src/script/index.js"></script>
+    </head>
+ 
+    <body>
+        <header>
+            <app-bar></app-bar>
+        </header>
+ 
+        <main>
+            <div id="buttonnewnote" class="buttonnewnote">
+                <button onclick="window.location.href='./form_note.html'" class="btn_newnote" name="myButton">
+                Tambah Catatan </button>
+            </div>
+            <div id="notesList" class="list"></div> <!-- Section for displaying notes -->
+        </main>
+ 
+        <footer>
+            <footer-bar></footer-bar>
+        </footer>
+    </body>
+</html>
