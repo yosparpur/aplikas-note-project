@@ -43,12 +43,16 @@ footer .container {
   padding: 8px 16px;
   text-align: center;
 }
-
+.catatan{
+  margin-top: 23px;
+  color: #3d2403;
+}
 /* CSS untuk List Catatan */
 .list {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  margin-top: 23px;
 }
 
 .list > * {

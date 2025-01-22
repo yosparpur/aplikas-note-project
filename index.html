@@ -15,10 +15,26 @@
         </header>
  
         <main>
-            <div id="buttonnewnote" class="buttonnewnote">
-                <button onclick="window.location.href='./form_note.html'" class="btn_newnote" name="myButton">
-                Tambah Catatan </button>
-            </div>
+            <form id="noteForm" autocomplete="off">
+                <div class="form-group row">
+                  <label for="noteTitle" class="col-4 col-form-label">Masukkan Judul Catatan</label> 
+                  <div class="col-8">
+                    <input id="noteTitle" name="noteTitle" type="text" class="form-control" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="noteBody">Isi Catatan</label>
+                  <br>
+                  <textarea id="noteBody" required minlength="1"></textarea>
+                </div>
+                <div class="form-group row">
+                  <div class="offset-4 col-8">
+                    <button type="submit" class="btn_submitnewnote">Kirim</button>
+                  </div>
+                </div>
+              </form>
+
+              <div class="catatan"><h1>List Catatan</h1></div>
             <div id="notesList" class="list"></div> <!-- Section for displaying notes -->
         </main>
  
