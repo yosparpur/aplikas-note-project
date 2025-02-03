@@ -1,45 +1,30 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-        <title>Aplikasi Note</title>
-        <!-- Own Styles -->
-        <link rel="icon" href="./src/img/logo_remove.png">
-        <link rel="stylesheet" href="./src/css/style.css">
-        <script type="module" src="./src/script/index.js"></script>
-    </head>
- 
-    <body>
-        <header>
-            <app-bar></app-bar>
-        </header>
- 
-        <main>
-            <form id="noteForm" autocomplete="off">
-                <div class="form-group row">
-                  <label for="noteTitle" class="col-4 col-form-label">Masukkan Judul Catatan</label> 
-                  <div class="col-8">
-                    <input id="noteTitle" name="noteTitle" type="text" class="form-control" required>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="noteBody">Isi Catatan</label>
-                  <br>
-                  <textarea id="noteBody" required minlength="1"></textarea>
-                </div>
-                <div class="form-group row">
-                  <div class="offset-4 col-8">
-                    <button type="submit" class="btn_submitnewnote">Kirim</button>
-                  </div>
-                </div>
-              </form>
+  <head>
+    <meta name="Aplikasi Catatan" content="Aplikasi web yang berfungsi sebagai catatan yang membantu pekerjaan kita">
+    <meta name="description" content="Aplikasi Note adalah aplikasi web sederhana yang dirancang untuk membuat, mengelola, dan menyimpan catatan penting dengan mudah.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Aplikasi Note</title>
+    <link rel="icon" href="./src/img/logo_remove.png">
+    <link rel="stylesheet" href="./src/css/style.css">
+    <script src="bundle.js"></script>
+  </head>
 
-              <div class="catatan"><h1>List Catatan</h1></div>
-            <div id="notesList" class="list"></div> <!-- Section for displaying notes -->
-        </main>
- 
-        <footer>
-            <footer-bar></footer-bar>
-        </footer>
-    </body>
+  <body>
+    <header>
+      <app-bar></app-bar>
+    </header>
+
+    <main>
+      <note-form></note-form>
+
+      <div class="catatan"><h1>List Catatan</h1></div>
+      <div id="notesList" class="list"></div> 
+    </main>
+
+    <footer>
+      <footer-bar></footer-bar>
+    </footer>
+  </body>
 </html>
