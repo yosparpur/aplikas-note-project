@@ -19,10 +19,21 @@ module.exports = {
         ],
     },
     devServer: {
-        contentBase: path.join(__dirname), // Melayani dari root proyek
+        static: path.join(__dirname, 'dist'), // Serve files from the dist directory
         compress: true,
-        port: 8080,
+        port: 8080, // Ensure the server runs on port 8080
         open: true,
-        historyApiFallback: true, // Mengatasi masalah 404 dengan mengarahkan kembali ke index.html
+        historyApiFallback: true, // Handle 404 errors by redirecting to index.html
     },
+    resolve: {
+        fallback: {
+          "assert": require.resolve("assert/"),
+          "child_process": false,
+          "fs": false,
+          "os": require.resolve("os-browserify/browser"),
+          "path": require.resolve("path-browserify"),
+          "stream": require.resolve("stream-browserify"),
+          "util": require.resolve("util/")
+        }
+      }
 };
