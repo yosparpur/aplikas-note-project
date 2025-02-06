@@ -2,17 +2,14 @@ import './script/app-bar.js';
 import './script/footer.js';
 import local from './script/local-storage.js';
 
-local();
+import './css/style.css';
 
+import logo from './img/logo_remove.png';
 
+const linkIcon = document.querySelector("link[rel='icon']");
+linkIcon.href = logo;
 
-import log from './logger';
+import main from './script/api-get.js';
 
-
-// Contoh penggunaan logger
-log.debug('Debugging information');
-log.info('Informational message');
-log.warn('Warning message');
-log.error('Error message');
-
-// Kode yang ada di sini...
+import api from './script/api-note.js';
+api();
