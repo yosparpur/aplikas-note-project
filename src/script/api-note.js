@@ -13,11 +13,7 @@ function api() {
             if (responseJson.error) {
                 showResponseMessage(responseJson.message);
             } else {
-                if (responseJson.notes && Array.isArray(responseJson.notes)) {
-                    renderNotes(responseJson.notes);
-                } else {
-                    showResponseMessage('Tidak ada catatan yang ditemukan.');
-                }
+                renderNotes(responseJson.data);
             }
         };
         xhr.onerror = function () {
