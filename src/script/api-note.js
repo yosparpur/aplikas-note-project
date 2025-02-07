@@ -1,118 +1,175 @@
-function api () {
-    const baseUrl = 'https://notes-api.dicoding.dev/v2/notes';
+import './Noteform.js';
+import { notesData } from "./notes.js";
 
-    const loadNotesFromApi = () => {
+const baseUrl = 'https://notes-api.dicoding.dev/v2';
+
+function api() {
+    // Fungsi untuk memuat data dari API
+    function loadNotesFromApi() {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
             const responseJson = JSON.parse(this.responseText);
-            console.log('Response Status:', this.status); // Log status respons
-            console.log('Data Received:', responseJson); // Log data yang diterima
+            console.log(responseJson); // Tambahkan log untuk memeriksa respons
             if (responseJson.error) {
                 showResponseMessage(responseJson.message);
             } else {
-                renderNotes(responseJson.notes);
+                if (responseJson.notes && Array.isArray(responseJson.notes)) {
+                    renderNotes(responseJson.notes);
+                } else {
+                    showResponseMessage('Tidak ada catatan yang ditemukan.');
+                }
             }
         };
-
         xhr.onerror = function () {
-            console.error('Error:', this.statusText); // Log kesalahan
-            showResponseMessage('Check your internet connection');
+            showResponseMessage('Terjadi kesalahan saat memuat data.');
         };
-
-        xhr.open('GET', baseUrl);
+        xhr.open('GET', `${baseUrl}/notes`);
         xhr.send();
-    };
-
-    const insertNote = (note) => {
+    }
+    // Fungsi untuk menyimpan catatan baru ke API
+    function saveNoteToApi(note) {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
             const responseJson = JSON.parse(this.responseText);
-            console.log('Response Status:', this.status); // Log status respons
-            console.log('Data Received:', responseJson); // Log data yang diterima
             showResponseMessage(responseJson.message);
-            loadNotesFromApi(); // Muat ulang catatan setelah menyimpan
+            loadNotesFromApi(); // Reload notes after saving
         };
-
         xhr.onerror = function () {
-            console.error('Error:', this.statusText); // Log kesalahan
-            showResponseMessage('Check your internet connection');
+            showResponseMessage('Terjadi kesalahan saat menyimpan catatan.');
         };
-
-        xhr.open('POST', baseUrl);
+        xhr.open('POST', `${baseUrl}/notes`);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('X-Auth-Token', '12345');
         xhr.send(JSON.stringify(note));
-    };
+    }
 
-    const renderNotes = (notes) => {
+    // Fungsi untuk menghapus catatan dari API
+    function deleteNoteFromApi(noteId) {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            const responseJson = JSON.parse(this.responseText);
+            showResponseMessage(responseJson.message);
+            loadNotesFromApi(); // Reload notes after deletion
+        };
+        xhr.onerror = function () {
+            showResponseMessage('Terjadi kesalahan saat menghapus catatan.');
+        };
+        xhr.open('DELETE', `${baseUrl}/notes/${noteId}`);
+        xhr.send();
+    }
+
+    // Fungsi untuk memperbarui catatan
+    function updateNote(note) {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            const responseJson = JSON.parse(this.responseText);
+            showResponseMessage(responseJson.message);
+            loadNotesFromApi(); // Reload notes after updating
+        };
+        xhr.onerror = function () {
+            showResponseMessage('Terjadi kesalahan saat memperbarui catatan.');
+        };
+        xhr.open('PUT', `${baseUrl}/notes/${note.id}`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(note));
+    }
+
+    // Fungsi untuk memperbarui tampilan daftar catatan
+    function renderNotes(notes) {
         const notesListElement = document.getElementById('notesList');
         if (!notesListElement) return;
 
         notesListElement.innerHTML = '';
 
-        if (!notes || notes.length === 0) {
+        if (notes.length === 0) {
             const noNotesMessage = document.createElement('p');
             noNotesMessage.textContent = "Tidak ada catatan yang tersedia.";
             notesListElement.appendChild(noNotesMessage);
-            return;
+        } else {
+            notes.forEach((note) => {
+                const container = document.createElement('div');
+                container.className = 'note-item';
+
+                const titleElement = document.createElement('h3');
+                titleElement.textContent = note.title;
+
+                const bodyElement = document.createElement('p');
+                bodyElement.textContent = note.body;
+
+                const createdAtElement = document.createElement('small');
+                createdAtElement.textContent = `Dibuat pada: ${new Date(note.createdAt).toLocaleString()}`;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = "Delete";
+                deleteButton.onclick = () => deleteNoteFromApi(note.id);
+
+                const editButton = document.createElement('button');
+                editButton.textContent = "Edit";
+                editButton.onclick = () => handleEdit(note);
+
+                container.append(titleElement, bodyElement, createdAtElement, editButton, deleteButton);
+                notesListElement.appendChild(container);
+            });
         }
+    }
 
-        notes.forEach((note) => {
-            const container = document.createElement('div');
-            container.className = 'note-item';
-            container.innerHTML = `
-                <h3>${note.title}</h3>
-                <p>${note.body}</p>
-                <button onclick="removeNote(${note.id})">Hapus</button>
-                <button onclick="editNote(${note.id}, '${note.title}', '${note.body}')">Edit</button>
-            `;
-            notesListElement.appendChild(container);
+    // Fungsi menangani edit catatan
+    function handleEdit(note) {
+        const noteForm = document.querySelector('note-form').shadowRoot.querySelector('#noteForm');
+        noteForm.querySelector('#noteTitle').value = note.title;
+        noteForm.querySelector('#noteBody').value = note.body;
+
+        const submitButton = noteForm.querySelector('.btn_submitnewnote');
+        submitButton.textContent = "Update";
+
+        // Hapus event listener sebelumnya untuk mencegah duplikasi
+        submitButton.replaceWith(submitButton.cloneNode(true));
+        const newSubmitButton = noteForm.querySelector('.btn_submitnewnote');
+
+        newSubmitButton.onclick = (event) => {
+            event.preventDefault();
+            updateNote({
+                id: note.id,
+                title: noteForm.querySelector('#noteTitle').value,
+                body: noteForm.querySelector('#noteBody').value,
+                createdAt: note.createdAt // Pastikan untuk menyertakan createdAt jika diperlukan
+            });
+            noteForm.reset();
+            newSubmitButton.textContent = "Kirim";
+        };
+    }
+
+    // Fungsi untuk menampilkan pesan respons
+    function showResponseMessage(message = 'Check your internet connection') {
+        alert(message);
+    }
+
+    // Event listener utama
+    document.addEventListener('DOMContentLoaded', () => {
+        loadNotesFromApi(); // Load notes from API on page load
+
+        const noteForm = document.querySelector('note-form').shadowRoot.querySelector('#noteForm');
+        noteForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const noteTitle = noteForm.querySelector('#noteTitle').value;
+            const noteBody = noteForm.querySelector('#noteBody').value;
+
+            if (!noteTitle || !noteBody) {
+                alert("Judul dan Isi Catatan harus diisi!");
+                return;
+            }
+
+            const newNote = {
+                id: `note-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`, // ID ini mungkin tidak diperlukan jika API mengelola ID
+                title: noteTitle,
+                body: noteBody,
+                createdAt: new Date().toISOString(),
+            };
+
+            saveNoteToApi(newNote);
+            noteForm.reset();
         });
-    };
-
-    const removeNote = (noteId) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const responseJson = JSON.parse(this.responseText);
-            showResponseMessage(responseJson.message);
-            loadNotesFromApi(); // Muat ulang catatan setelah penghapusan
-        };
-
-        xhr.onerror = function () {
-            console.error('Error:', this.statusText); // Log kesalahan
-            showResponseMessage('Check your internet connection');
-        };
-
-        xhr.open('DELETE', `${baseUrl}/${noteId}`);
-        xhr.setRequestHeader('X-Auth-Token', '12345');
-        xhr.send();
-    };
-
-    const editNote = (noteId, noteTitle, noteBody) => {
-        const updatedNote = {
-            title: noteTitle,
-            body: noteBody
-        };
-
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const responseJson = JSON.parse(this.responseText);
-            showResponseMessage(responseJson.message);
-            loadNotesFromApi(); // Muat ulang catatan setelah pengeditan
-        };
-
-        xhr.onerror = function () {
-            console.error('Error:', this.statusText); // Log kesalahan
-            showResponseMessage('Check your internet connection');
-        };
-
-        xhr.open('PUT', `${baseUrl}/${noteId}`);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('X-Auth-Token', '12345');
-        xhr.send(JSON.stringify(updatedNote));
-    };
-
-    // Panggil loadNotesFromApi saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', loadNotesFromApi);
+    });
 }
+
 export default api;
