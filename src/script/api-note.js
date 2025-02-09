@@ -156,10 +156,8 @@ function api() {
             }
 
             const newNote = {
-                id: `note-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`, // ID ini mungkin tidak diperlukan jika API mengelola ID
                 title: noteTitle,
                 body: noteBody,
-                createdAt: new Date().toISOString(),
             };
 
             saveNoteToApi(newNote);
