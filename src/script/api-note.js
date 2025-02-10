@@ -1,81 +1,144 @@
+import Swal from 'sweetalert2';
 import './Noteform.js';
 import { notesData } from "./notes.js";
 
 const baseUrl = 'https://notes-api.dicoding.dev/v2';
 
 function api() {
-    // Fungsi untuk memuat data dari API
-    function loadNotesFromApi() {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const responseJson = JSON.parse(this.responseText);
-            console.log(responseJson); // Tambahkan log untuk memeriksa respons
-            if (responseJson.error) {
-                showResponseMessage(responseJson.message);
-            } else {
-                renderNotes(responseJson.data);
+    async function loadNotesFromApi() {
+        Swal.fire({
+            title: "Memuat catatan...",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
-        };
-        xhr.onerror = function () {
-            showResponseMessage('Terjadi kesalahan saat memuat data.');
-        };
-        xhr.open('GET', `${baseUrl}/notes`);
-        xhr.send();
-    }
-    // Fungsi untuk menyimpan catatan baru ke API
-    function saveNoteToApi(note) {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const responseJson = JSON.parse(this.responseText);
-            showResponseMessage(responseJson.message);
-            loadNotesFromApi(); // Reload notes after saving
-        };
-        xhr.onerror = function () {
-            showResponseMessage('Terjadi kesalahan saat menyimpan catatan.');
-        };
-        xhr.open('POST', `${baseUrl}/notes`);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(note));
+        });
+
+        try {
+            const response = await fetch(`${baseUrl}/notes`);
+            const responseJson = await response.json();
+            
+            Swal.close();
+
+            if (responseJson.error) {
+                await Swal.fire(responseJson.message, "", "error");
+                renderNotes(notesData);
+            } else {
+                const combinedNotes = [...notesData, ...responseJson.data];
+                renderNotes(combinedNotes);
+            }
+        } catch (error) {
+            Swal.close();
+            await Swal.fire("Terjadi kesalahan saat memuat data.", "", "error");
+            renderNotes(notesData);
+        }
     }
 
-    // Fungsi untuk menghapus catatan dari API
-    function deleteNoteFromApi(noteId) {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const responseJson = JSON.parse(this.responseText);
-            showResponseMessage(responseJson.message);
-            loadNotesFromApi(); // Reload notes after deletion
-        };
-        xhr.onerror = function () {
-            showResponseMessage('Terjadi kesalahan saat menghapus catatan.');
-        };
-        xhr.open('DELETE', `${baseUrl}/notes/${noteId}`);
-        xhr.send();
+    async function saveNoteToApi(note) {
+        Swal.fire({
+            title: "Menyimpan catatan...",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            await fetch(`${baseUrl}/notes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(note),
+            });
+
+            Swal.close();
+            await Swal.fire("Catatan baru berhasil dibuat!", "", "success");
+
+            loadNotesFromApi();
+        } catch (error) {
+            Swal.close();
+            await Swal.fire("Terjadi kesalahan saat menyimpan catatan.", "", "error");
+        }
     }
 
-    // Fungsi untuk memperbarui catatan
-    function updateNote(note) {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const responseJson = JSON.parse(this.responseText);
-            showResponseMessage(responseJson.message);
-            loadNotesFromApi(); // Reload notes after updating
-        };
-        xhr.onerror = function () {
-            showResponseMessage('Terjadi kesalahan saat memperbarui catatan.');
-        };
-        xhr.open('PUT', `${baseUrl}/notes/${note.id}`);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(note));
+    async function deleteNoteFromApi(noteId) {
+        Swal.fire({
+            title: "Menghapus catatan...",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            await fetch(`${baseUrl}/notes/${noteId}`, { method: 'DELETE' });
+            Swal.close();
+            await Swal.fire("Catatan berhasil dihapus!", "", "success");
+            loadNotesFromApi();
+        } catch (error) {
+            Swal.close();
+            await Swal.fire("Terjadi kesalahan saat menghapus catatan.", "", "error");
+        }
     }
 
-    // Fungsi untuk memperbarui tampilan daftar catatan
+    async function updateNote(note) {
+        Swal.fire({
+            title: "Memperbarui catatan...",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            await fetch(`${baseUrl}/notes/${note.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(note),
+            });
+
+            Swal.close();
+            await Swal.fire("Catatan berhasil diperbarui!", "", "success");
+            loadNotesFromApi();
+        } catch (error) {
+            Swal.close();
+            await Swal.fire("Terjadi kesalahan saat memperbarui catatan.", "", "error");
+        }
+    }
+
+    function handleEdit(note) {
+        Swal.fire({
+            title: "Edit Catatan",
+            html: `
+                <input id="editTitle" class="swal2-input" placeholder="Judul" value="${note.title}">
+                <textarea id="editBody" class="swal2-textarea" placeholder="Isi Catatan">${note.body}</textarea>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "Simpan",
+            cancelButtonText: "Batal",
+            preConfirm: () => {
+                const newTitle = document.getElementById('editTitle').value;
+                const newBody = document.getElementById('editBody').value;
+
+                if (!newTitle || !newBody) {
+                    Swal.showValidationMessage("Judul dan Isi Catatan harus diisi!");
+                    return false;
+                }
+
+                return { id: note.id, title: newTitle, body: newBody };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateNote(result.value);
+            }
+        });
+    }
+
     function renderNotes(notes) {
         const notesListElement = document.getElementById('notesList');
         if (!notesListElement) return;
-
+    
         notesListElement.innerHTML = '';
-
+    
         if (notes.length === 0) {
             const noNotesMessage = document.createElement('p');
             noNotesMessage.textContent = "Tidak ada catatan yang tersedia.";
@@ -84,86 +147,33 @@ function api() {
             notes.forEach((note) => {
                 const container = document.createElement('div');
                 container.className = 'note-item';
-
+    
                 const titleElement = document.createElement('h3');
                 titleElement.textContent = note.title;
-
+    
                 const bodyElement = document.createElement('p');
                 bodyElement.textContent = note.body;
-
-                const createdAtElement = document.createElement('small');
-                createdAtElement.textContent = `Dibuat pada: ${new Date(note.createdAt).toLocaleString()}`;
-
+    
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'button-container';
+    
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = "Delete";
-                deleteButton.onclick = () => deleteNoteFromApi(note.id);
-
+                deleteButton.onclick = () => confirmDelete(note.id);
+    
                 const editButton = document.createElement('button');
                 editButton.textContent = "Edit";
                 editButton.onclick = () => handleEdit(note);
-
-                container.append(titleElement, bodyElement, createdAtElement, editButton, deleteButton);
+    
+                buttonContainer.append(editButton, deleteButton);
+    
+                container.append(titleElement, bodyElement, buttonContainer);
                 notesListElement.appendChild(container);
             });
         }
     }
 
-    // Fungsi menangani edit catatan
-    function handleEdit(note) {
-        const noteForm = document.querySelector('note-form').shadowRoot.querySelector('#noteForm');
-        noteForm.querySelector('#noteTitle').value = note.title;
-        noteForm.querySelector('#noteBody').value = note.body;
-
-        const submitButton = noteForm.querySelector('.btn_submitnewnote');
-        submitButton.textContent = "Update";
-
-        // Hapus event listener sebelumnya untuk mencegah duplikasi
-        submitButton.replaceWith(submitButton.cloneNode(true));
-        const newSubmitButton = noteForm.querySelector('.btn_submitnewnote');
-
-        newSubmitButton.onclick = (event) => {
-            event.preventDefault();
-            updateNote({
-                id: note.id,
-                title: noteForm.querySelector('#noteTitle').value,
-                body: noteForm.querySelector('#noteBody').value,
-                createdAt: note.createdAt // Pastikan untuk menyertakan createdAt jika diperlukan
-            });
-            noteForm.reset();
-            newSubmitButton.textContent = "Kirim";
-        };
-    }
-
-    // Fungsi untuk menampilkan pesan respons
-    function showResponseMessage(message = 'Check your internet connection') {
-        alert(message);
-    }
-
-    // Event listener utama
-    document.addEventListener('DOMContentLoaded', () => {
-        loadNotesFromApi(); // Load notes from API on page load
-
-        const noteForm = document.querySelector('note-form').shadowRoot.querySelector('#noteForm');
-        noteForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const noteTitle = noteForm.querySelector('#noteTitle').value;
-            const noteBody = noteForm.querySelector('#noteBody').value;
-
-            if (!noteTitle || !noteBody) {
-                alert("Judul dan Isi Catatan harus diisi!");
-                return;
-            }
-
-            const newNote = {
-                title: noteTitle,
-                body: noteBody,
-            };
-
-            saveNoteToApi(newNote);
-            noteForm.reset();
-        });
-    });
+    document.addEventListener('DOMContentLoaded', loadNotesFromApi);
 }
 
 export default api;

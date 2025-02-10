@@ -47,6 +47,7 @@ footer .container {
   margin-top: 23px;
   color: #3d2403;
 }
+
 /* CSS untuk List Catatan */
 .list {
   display: grid;
@@ -67,6 +68,8 @@ footer .container {
   border: 1px solid #ddd;
   border-radius: 5px;
   position: relative;
+  display: flex;
+  flex-direction: column; /* Ensure buttons are at the bottom */
 }
 
 .note-item h3 {
@@ -81,13 +84,14 @@ footer .container {
 .note-item button {
   background-color: #a94a4a;
   color: white;
-  padding: 8px 12px;
+  padding: 8px 12px; /* Adjusted padding for better spacing */
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin: 5px;
-  font-size: 12px;
+  margin: 5px; /* Adjusted margin for spacing */
+  font-size: 12px; /* Original font size */
 }
+
 
 .note-item button:hover {
   background-color: #d84b4b;
@@ -101,7 +105,8 @@ footer .container {
   background-color: #f39c12;
 }
 
-.btn_newnote {
+.btn_newnote,
+.archived_btn{
   background-color: #a94a4a;
   color: white;
   padding: 10px 15px;
@@ -132,6 +137,26 @@ footer .container {
   cursor: pointer;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+#loadingIndicator {
+  display: none;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #555;
+  padding: 10px;
+}
+
+#loadingIndicator::after {
+  content: ' ⏳';
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Formulir untuk Membuat dan Mengedit Catatan */
@@ -179,4 +204,55 @@ textarea {
   color: #e74c3c; /* Warna merah untuk pesan validasi */
   font-size: 12px;
   margin-top: 4px;
+}
+
+/* --- Style untuk SweetAlert --- */
+.swal2-popup {
+  font-family: "Open Sans", sans-serif;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Warna untuk title */
+.swal2-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Warna untuk text */
+.swal2-content {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Custom button styling */
+.swal2-confirm {
+  background-color: #4CAF50 !important;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.swal2-cancel {
+  background-color: #f44336 !important;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 600px) {
+  .list {
+    grid-template-columns: 1fr; /* Single column layout on mobile */
+  }
+
+  .note-item button {
+    padding: 12px; /* Increase button padding for better touch targets */
+    font-size: 16px; /* Increase font size for better readability */
+  }
+
+  form {
+    width: 90%; /* Make form width responsive */
+  }
 }
