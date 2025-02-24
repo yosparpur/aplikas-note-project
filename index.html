@@ -1,29 +1,42 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta name="Aplikasi Catatan" content="Aplikasi web yang berfungsi sebagai catatan yang membantu pekerjaan kita">
-    <meta name="description" content="Aplikasi Note adalah aplikasi web sederhana yang dirancang untuk membuat, mengelola, dan menyimpan catatan penting dengan mudah.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <title>Aplikasi Note</title>
-    <link rel="icon" href="./src/img/logo_remove.png">
 
-  </head>
+<head>
+  <meta name="Aplikasi Catatan" content="Aplikasi web yang berfungsi sebagai catatan yang membantu pekerjaan kita">
+  <meta name="description"
+    content="Aplikasi Note adalah aplikasi web sederhana yang dirancang untuk membuat, mengelola, dan menyimpan catatan penting dengan mudah.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <title>Aplikasi Note</title>
+  <link rel="icon" href="./src/img/logo_remove.png">
 
-  <body>
-    <header>
-      <app-bar></app-bar>
-    </header>
+</head>
 
-    <main>
-      <note-form></note-form>
+<body>
+  <header>
+    <app-bar></app-bar>
+  </header>
 
-      <div class="catatan"><h1>List Catatan</h1></div>
-      <div id="notesList" class="list"></div> 
-    </main>
+  <main>
+    <note-form></note-form>
 
-    <footer>
-      <footer-bar></footer-bar>
-    </footer>
-  </body>
+    <div class="catatan">
+      <h1>List Catatan</h1>
+    </div>
+
+
+    <!-- Indikator Loading -->
+    <div id="loadingIndicator" style="display: none; text-align: center;">
+      ⏳ Memuat data...
+    </div>
+
+    <div id="notesList" class="list"></div>
+  </main>
+
+
+  <footer>
+    <footer-bar></footer-bar>
+  </footer>
+</body>
+
 </html>
